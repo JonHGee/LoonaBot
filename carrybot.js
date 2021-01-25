@@ -53,18 +53,20 @@ bot.on('ready', function (evt) {
 
 bot.on('message', (message) => {
   //console.log(message.content);
-    //Ignores message if the bot sends it. Prevents infinite loops
+
+  //Logs DMs to the bot.  Sends confessions to confess file.
 	if(message.channel.type == 'dm') {
 		console.log(new Date(Date.now()).toLocaleDateString(undefined, options)+ ': '+message.content +' -- '+message.author.username);
     confess.confess(message, bot);
     return;
 	}
 	
+  //Ignores message if the bot sends it. Prevents infinite loops
 	if (message.author.bot) {
         return
     }
 	
- 
+  //
   if(message.channel.id == '612690642589581424' || message.channel.id == '720003001485361213') {
       message.delete({ timeout: 600000 });
   }
@@ -77,20 +79,23 @@ bot.on('message', (message) => {
 	
 	//Command list
 	if (message.content.substring(0, 1) == '!') {
-        var args = message.content.substring(1).split(' ');
-        var cmd = args[0].toLowerCase();
-		
-        switch(cmd) {	
-        case 'terv':
-          if(tervor == false) {
-            tervor = true;
-          }
-          break;
-        		
+      var args = message.content.substring(1).split(' ');
+      var cmd = args[0].toLowerCase();
+	
+      switch(cmd) {	
+      //T E R V :DOG:
+      case 'terv':
+        if(tervor == false) {
+          tervor = true;
+        }
+        break;
+      
+      //Emoji stats  		
 			case 'estat':
 				estat.estat(message, args, bot);
 				break;
-			 	
+			
+      //insults 	
 			case 'insult':
 			case 'i':
 				ci.insult(message, args);
@@ -108,6 +113,7 @@ bot.on('message', (message) => {
 				ci.compliment(message, args);
 				break;
 			
+      //rolls multiple sided die.  Rolls one(1) 100 sided die by default.
       case 'roll':
         if (args[1]) {
       		var dice = args[1].split('d');
@@ -125,11 +131,14 @@ bot.on('message', (message) => {
       		message.channel.send(Math.ceil(Math.random()*100));
       	}
       	break;
-       
+      
+      //Compiles a list of all custom emojis on server and sends them in multiple messages. 
       case 'emojilist':
       case 'elist':
+        //maps all custom emojis to emojiList
       	const emojiList = message.guild.emojis.cache.map(e=>e.toString()).join(" ");
       	if(emojiList) {
+          //sends 25 emojis at a time
       	  var arr = emojiList.split(" ");
           var r = [];
           while (arr.length) {
@@ -140,21 +149,27 @@ bot.on('message', (message) => {
       		message.channel.send('No custom emojis on server');
       	}
       	break;      
-       
+      
+      //Carry sign up 
       case 'carry':
+        //Only posts in certain channels.  Botmster domain, Carries in Loona.  Carries in saku.
 				if(message.channel.id == '612690642589581424' || message.channel.id == '712713011797950606' || message.channel.id == '598171272433631233' || message.channel.id ==     '720003001485361213') {
+          //Checks for at least name of boss carrying.
 					if(!args[1]) {
 						message.channel.send('Specifiy what boss you are carrying.\nFormat: !carry [boss] [time from now] [slots(optional)]');
 						return;
 					}
-          var notes = "none";            
+          var notes = "none";
+          //if only boss name specified, Defaults the rest.            
 					if(!args[2]) {
 						var timeleft = 'very soon';
             var spots = 5;
+          //If a second argument exists and is numeric, takes it as spots available
 					} else if(args[2] && isNumeric(args[2])) {
             var spots = args[2];
             var timeleft = 'very soon';
           } else {
+            //If second argument exists and isnt numeric, takes it as time left. Specified as xdyhzm
 						if(args[2].split('d')[1]) {
 							var hrmin = args[2].split('d')[1];
 							var days = args[2].split('d')[0];
@@ -342,6 +357,7 @@ bot.on('message', (message) => {
     
 });
 
+
 async function prom(message) {
     //2 P R O M D A T E S
     await message.react('2️⃣');
@@ -356,6 +372,7 @@ async function prom(message) {
     await message.react('🇸'); //S
 }
 
+//T E R V :DOG:
 async function terv(message) {
     await message.react('🇹');
     await message.react('🇪');
@@ -364,33 +381,28 @@ async function terv(message) {
     await message.react('🐕');
 }
 
+//Checks if the argument is a number
 function isNumeric(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
 
-
+//Send a GPQ Notice 24 hours ahead of time to #main
 var gpq24hr = schedule.scheduleJob('30 2 * * 7', async function() {
 	bot.channels.fetch('605240626262442008').then(channel => channel.send('<@&724719402498392097> Friendly reminder that GPQ will be taking place 24 hours from now! Sign off on the spreadsheet if you\'re coming! \nhttps://docs.google.com/spreadsheets/d/1qcAXIms2zfdDb2HhWF9ESbPLmTtH8vJ_jMxWPwEcDKs/edit#gid=0'))
 });
 
+//Send a GPQ Notice 30 minutes ahead of time to #main
 var gpq30min = schedule.scheduleJob('0 2 * * 1', async function() {
 	bot.channels.fetch('605240626262442008').then(channel => channel.send('<@&724719402498392097> Friendly reminder that GPQ will be happening in 30 minutes! Prepare your links, legion, equips, etc! @<186161400278679552> will start making parties now! \nhttps://docs.google.com/spreadsheets/d/1qcAXIms2zfdDb2HhWF9ESbPLmTtH8vJ_jMxWPwEcDKs/edit#gid=0'))
 });
 
-//var colo = schedule.scheduleJob('58 19 * * *', async function() {
-//	bot.channels.fetch('730834566394282107').then(channel => channel.send('<@&736685329251303534>COLO COLO COLO COLO COLO COLO COLO COLO COLO'))
-//});
-
+//Sends a Flag notice 5 minutes before each flag race
 var flagprep = schedule.scheduleJob('55 11,18,20,21,22 * * *', async function() {
 	bot.channels.fetch('605240626262442008').then(channel => channel.send('<@&725081284539580496>FLAG SOON FLAG SOON FLAG SOON FLAG SOON '))
 });
-/*
-var flag = schedule.scheduleJob('0 /6 * * *', async function() {
-	bot.channels.fetch('712713011797950606').then(channel => channel.send())
-});
-*/
 
+//tts stuff
 const server = net.createServer((socket) => {
   socket.on('data', (data) => {    
     var words = data.toString().replace(/(\r\n|\n|\r)/gm,"").replace(/ +/g,' ').split(" ");
@@ -409,6 +421,7 @@ server.listen(9001, () => {
   console.log('opened server on', server.address().port);
 });
 
+//sends tts though google translate api
 sendBind = async function (id, message) {
   if(timeoutObj) {
     clearTimeout(timeoutObj);
